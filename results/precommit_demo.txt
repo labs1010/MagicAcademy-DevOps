@@ -1,0 +1,45 @@
+style: rejected (exit 1)
+Ruff lint blocks bad commits.............................................Failed
+- hook id: ruff-check
+- exit code: 1
+
+example.py:1:8: F401 [*] `os` imported but unused
+  |
+1 | import os
+  |        ^^ F401
+  |
+  = help: Remove unused import: `os`
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.
+
+Ruff format check........................................................Passed
+
+syntax: rejected (exit 1)
+Ruff lint blocks bad commits.............................................Failed
+- hook id: ruff-check
+- exit code: 1
+
+example.py:2:1: SyntaxError: unexpected EOF while parsing
+  |
+1 | def broken(
+  |            ^
+  |
+
+Found 1 error.
+
+Ruff format check........................................................Failed
+- hook id: ruff-format
+- exit code: 2
+
+error: Failed to parse example.py:2:1: unexpected EOF while parsing
+
+
+valid: accepted
+[main (root-commit) 4ce45f2] Valid code
+ 3 files changed, 24 insertions(+)
+ create mode 100644 .pre-commit-config.yaml
+ create mode 100644 example.py
+ create mode 100644 pyproject.toml
+Ruff lint blocks bad commits.............................................Passed
+Ruff format check........................................................Passed

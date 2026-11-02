@@ -1,0 +1,1 @@
+PASS: YAML parsed; PR/main triggers, lint, pytest, isolated PostgreSQL service and upload steps present. Hosted GitHub execution NOT performed.

@@ -1,0 +1,4 @@
+Docker Compose version 2.40.3+ds1-0ubuntu1~24.04.1
+Sandbox config: PASS
+Development config: PASS
+Production config: PASS

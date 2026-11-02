@@ -1,0 +1,4 @@
+[2026-11-02 09:00:07,795] caf84bfa0b6a/INFO/locust.main: Starting Locust 2.37.2
+Available Users:
+    NormalUser
+    SpikeUser
