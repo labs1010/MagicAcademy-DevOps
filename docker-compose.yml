@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Run python scripts/configure.py}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate .env first}
+      POSTGRES_DB: ${POSTGRES_DB:?Generate .env first}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+  api:
+    build:
+      context: .
+      target: runtime
+    environment:
+      APP_ENV: ${APP_ENV:-sandbox}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET:?Generate .env first}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    networks: [backend]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+volumes:
+  pgdata:
+networks:
+  backend:
+    driver: bridge

@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      target: development
+    volumes:
+      - ./app:/app/app
+      - ./tests:/app/tests
+      - ./scripts:/app/scripts
+      - ./load:/app/load
+    command: ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+  db:
+    ports:
+      - "127.0.0.1:5433:5432"
