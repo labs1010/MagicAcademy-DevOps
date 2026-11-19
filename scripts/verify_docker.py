@@ -1,5 +1,6 @@
 """Build, verify DB/API and data survival in a disposable isolated Compose project."""
 
+import argparse
 import json
 import os
 import secrets
@@ -27,6 +28,9 @@ def wait_ready(client):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--no-build", action="store_true")
+    args = parser.parse_args()
     os.chdir(ROOT)
     project = "magic-check-" + secrets.token_hex(4)
     with socket.socket() as sock:
@@ -60,6 +64,8 @@ def main():
         ]:
             env.pop(key, None)
 
+        env["PLANNER_PORT"] = "0"
+
         def compose(*args):
             return subprocess.run(
                 [*base, *args], env=env, text=True, capture_output=True, check=True
@@ -68,7 +74,14 @@ def main():
         try:
             compose("config", "--quiet")
             evidence["checks"].append("compose config passed")
-            compose("up", "--build", "-d", "--wait", "--wait-timeout", "180")
+            compose(
+                "up",
+                "--no-build" if args.no_build else "--build",
+                "-d",
+                "--wait",
+                "--wait-timeout",
+                "180",
+            )
             evidence["checks"].append("build and healthchecks passed")
             with httpx.Client(base_url=f"http://127.0.0.1:{port}", timeout=10) as client:
                 wait_ready(client)

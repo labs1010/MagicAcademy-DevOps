@@ -1,9 +1,9 @@
-............sss.......                                                   [100%]
+......................                                                   [100%]
 =============================== warnings summary ===============================
-../.venv/lib/python3.12/site-packages/starlette/testclient.py:37
-  /workspace/scratch/b7d8685abc25/.venv/lib/python3.12/site-packages/starlette/testclient.py:37: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+../../../../tmp/ma-deps/starlette/testclient.py:37
+  /tmp/ma-deps/starlette/testclient.py:37: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
     _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-- generated xml file: /workspace/scratch/b7d8685abc25/MagicAcademy/results/pytest.xml -
-19 passed, 3 skipped, 1 warning in 0.88s
+- generated xml file: /workspace/scratch/22e25ea4bb4c/MagicAcademy/results/pytest.xml -
+22 passed, 1 warning in 3.57s

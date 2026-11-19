@@ -73,3 +73,62 @@ py -3.12 -m venv .venv
 У репозиторії немає реальних секретів; `.env*` з паролями ігноруються.
 Після публікації репозиторію на GitHub workflow автоматично працює для PR та push у main.
 Публікацію на GitHub і виконання hosted Actions тут не здійснювали.
+
+## DevOps №2 — Continuous Integration
+
+Из корня проекта в PowerShell с запущенным Docker Desktop:
+
+```powershell
+py -3.12 scripts/configure.py
+docker compose up --build -d --wait
+Invoke-RestMethod http://localhost:8000/health
+Invoke-RestMethod "http://localhost:8010/groups?students=21&group_size=10"
+```
+
+Планировщик вернёт три группы. Для проверки тестов обоих сервисов:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python scripts/run_tests.py
+.\.venv\Scripts\python -m pytest -q planner/test_planner.py
+```
+
+### Публикация и проверка образов
+
+Включите GitHub Actions в репозитории. Job публикации запрашивает
+`packages: write` для встроенного `GITHUB_TOKEN`. Политика организации должна
+разрешать запись в GHCR. Для уже существующего пакета дайте репозиторию
+доступ Write в настройках пакета. После успешного push откройте оба пакета в
+GitHub Packages и скопируйте полный SHA коммита из запуска Actions.
+
+Для проверки скачанных образов выполните в новом окне PowerShell из корня
+проекта с уже созданным локальным файлом .env. Введите owner/repo строчными
+буквами. Для приватных пакетов предварительно войдите через docker login ghcr.io
+с именем GitHub и токеном с правом read:packages.
+
+```powershell
+$repo = (Read-Host "GitHub owner/repo").ToLowerInvariant()
+$sha = Read-Host "Full commit SHA"
+$env:API_IMAGE = "ghcr.io/${repo}-api:${sha}"
+$env:PLANNER_IMAGE = "ghcr.io/${repo}-planner:${sha}"
+docker pull $env:API_IMAGE
+docker pull $env:PLANNER_IMAGE
+docker compose up --no-build --force-recreate -d --wait
+docker compose images
+Invoke-RestMethod http://localhost:8000/health
+Invoke-RestMethod "http://localhost:8010/groups?students=21&group_size=10"
+```
+
+### Защита main и демонстрация
+
+1. После первого успешного запуска CI откройте Settings → Branches →
+   Add classic branch protection rule. Укажите main.
+2. Включите Require a pull request before merging и Require status checks to
+   pass before merging. Выберите API checks, Planner checks и Docker build.
+   Для самостоятельной работы можно оставить число обязательных одобрений равным нулю.
+3. Включите Do not allow bypassing the above settings. Сохраните правило.
+4. Для демонстрации создайте ветку demo/blocked-pr. В planner/test_planner.py
+   замените ожидаемое значение в паре (21, 3) на (21, 2). Отправьте изменение
+   в свою ветку и откройте PR в main. Покажите ошибку Planner checks и блокировку
+   слияния. Верните (21, 3) следующим коммитом и покажите повторный запуск.
